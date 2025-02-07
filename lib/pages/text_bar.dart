@@ -12,7 +12,6 @@ class TextBar extends StatefulWidget {
 class _TextBarState extends State<TextBar> {
   final textController = List.generate(5, (index) => TextEditingController());
   final focusNodes = List.generate(5, (index) => FocusNode());
-  final correctWord = "meow".toLowerCase();
   List<Color> containerColors = List.generate(5, (index) => Colors.white);
 
   Widget _buildTextFields() {
@@ -41,67 +40,42 @@ class _TextBarState extends State<TextBar> {
     );
   }
 
-  void reset(i) {
-    setState(() {
-      containerColors[i] = Colors.redAccent;
-    });
-  }
+  void colorDiv() {
+    List<String> wordCharacters = TextBar.CorrectWord.split("");
+    List<TextEditingController> inputData = List.from(textController);
+    Set<int> alreadyChecked = {};
 
-  void getWord() {
-    List<String> correct_word_converted_to_list = TextBar.CorrectWord.split("");
-    List<characterMap> Correct_word_data = [];
+    for (int i = 0; i < inputData.length; i++) {
+      setState(() {
+        containerColors[i] = Colors.redAccent;
+      });
+    }
 
-    for (int i = 0; i < correct_word_converted_to_list.length; i++) {
-      int index = Correct_word_data.indexWhere(
-          (item) => item.name == correct_word_converted_to_list[i]);
-
-      if (index != -1) {
-        // If character exists, update its countLeft and add new position
-        Correct_word_data[index].countLeft += 1;
-        Correct_word_data[index].positions.add(i);
-      } else {
-        // If character doesn't exist, create a new object
-        var character_to_push =
-            characterMap(correct_word_converted_to_list[i], [i], 1);
-        Correct_word_data.add(character_to_push);
+    for (int i = inputData.length - 1; i >= 0; i--) {
+      // Iterate in reverse
+      if (inputData[i].text == wordCharacters[i]) {
+        wordCharacters[i] = "1234";
+        setState(() {
+          containerColors[i] = Colors.greenAccent;
+        });
+        alreadyChecked.add(i);
       }
     }
 
-    for (int i = 0; i < textController.length; i++) {
-      // Check if the character exists in Correct_word_data
-      bool characterExists =
-          Correct_word_data.any((item) => item.name == textController[i].text);
-
-      if (characterExists) {
-        setState(() {
-          containerColors[i] = Colors.yellowAccent;
-        });
-
-        var characterData = Correct_word_data.firstWhere(
-            (item) => item.name == textController[i].text);
-
-        characterData.countLeft--;
-        print("CountLeft: ${characterData.countLeft}");
-
-        // Check if the character is at the correct location
-        if (characterData.positions.contains(i)) {
-          setState(() {
-            containerColors[i] = Colors.greenAccent;
-          });
+    for (int i = 0; i < inputData.length; i++) {
+      if (!alreadyChecked.contains(i)) {
+        // ✅ Check if `i` was not checked before
+        for (int j = 0; j < wordCharacters.length; j++) {
+          if (inputData[i].text == wordCharacters[j]) {
+            wordCharacters[j] = "1234"; // ✅ Mark as used
+            alreadyChecked.add(i);
+            setState(() {
+              containerColors[i] = Colors.yellowAccent;
+            });
+            break;
+          }
         }
-
-        if (characterData.countLeft < 0) {
-          setState(() {
-            containerColors[i] = Colors.redAccent;
-          });
-        }
-      } else {
-        setState(() {
-          containerColors[i] = Colors.redAccent;
-        });
       }
-
-      // Print the data for each letter
     }
   }
 
@@ -112,7 +86,7 @@ class _TextBarState extends State<TextBar> {
         _buildTextFields(),
         ElevatedButton(
             onPressed: () {
-              getWord();
+              colorDiv();
             },
             child: Text("check"))
       ],

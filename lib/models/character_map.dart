@@ -1,9 +1,11 @@
-class characterMap {
-  String name;
-  List<int> positions;
-  int countLeft;
-  characterMap(this.name, this.positions, this.countLeft);
-}
+// class characterMap {
+//   String name;
+//   List<int> positions;
+//   int countLeft;
+
+//   static num length;
+//   characterMap(this.name, this.positions, this.countLeft);
+// }
 
 
 // if (characterExists) {
