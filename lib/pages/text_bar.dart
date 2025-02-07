@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:free_wordle/models/character_map.dart';
 
@@ -70,30 +68,31 @@ class _TextBarState extends State<TextBar> {
     }
 
     for (int i = 0; i < textController.length; i++) {
-      // right character && right place ==  color = red
+      // Check if the character exists in Correct_word_data
       bool characterExists =
           Correct_word_data.any((item) => item.name == textController[i].text);
 
       if (characterExists) {
-        // Find the characterMap object where the name matches textController[i].text
+        setState(() {
+          containerColors[i] = Colors.yellowAccent;
+        });
+
         var characterData = Correct_word_data.firstWhere(
             (item) => item.name == textController[i].text);
+
         characterData.countLeft--;
+        print("CountLeft: ${characterData.countLeft}");
 
-        if (characterData.countLeft <= 0) {
-          print("goes here");
-          setState(() {
-            containerColors[i] = Colors.redAccent;
-          });
-        }
-
+        // Check if the character is at the correct location
         if (characterData.positions.contains(i)) {
           setState(() {
             containerColors[i] = Colors.greenAccent;
           });
-        } else {
+        }
+
+        if (characterData.countLeft < 0) {
           setState(() {
-            containerColors[i] = Colors.yellowAccent;
+            containerColors[i] = Colors.redAccent;
           });
         }
       } else {
@@ -101,6 +100,8 @@ class _TextBarState extends State<TextBar> {
           containerColors[i] = Colors.redAccent;
         });
       }
+
+      // Print the data for each letter
     }
   }
 
