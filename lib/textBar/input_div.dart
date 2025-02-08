@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:free_wordle/providers/word_provider.dart';
 import 'package:free_wordle/utilities/word_of_the_day.dart';
 
-class TextBoxes extends StatefulWidget {
-  WordOfTheDay word; // Accept WordOfTheDay instance
-  TextBoxes({super.key, required this.word});
-
+class TextBoxes extends ConsumerStatefulWidget {
+  // Accept WordOfTheDay instance
+  TextBoxes({super.key});
   @override
-  State<TextBoxes> createState() => _TextBoxesState();
+  ConsumerState<TextBoxes> createState() => _TextBoxesState();
 }
 
-class _TextBoxesState extends State<TextBoxes> {
+class _TextBoxesState extends ConsumerState<TextBoxes> {
   final textController = List.generate(5, (index) => TextEditingController());
   final focusNodes = List.generate(5, (index) => FocusNode());
   List<Color> containerColors = List.generate(5, (index) => Colors.white);
+
+  void clearTextFields() {
+    for (var controller in textController) {
+      controller.clear();
+    }
+  }
 
   void moveForward(value, index) {
     if (value.isNotEmpty && index < 4) {
@@ -21,7 +28,8 @@ class _TextBoxesState extends State<TextBoxes> {
   }
 
   void colorDiv() {
-    List<String> wordCharacters = widget.word.getWord().split("");
+    List<String> wordCharacters =
+        ref.read(wordProvider).toLowerCase().split("");
     List<TextEditingController> inputData = List.from(textController);
     Set<int> alreadyChecked = {};
 
@@ -91,6 +99,16 @@ class _TextBoxesState extends State<TextBoxes> {
 
   @override
   Widget build(BuildContext context) {
+    final shouldReset = ref.watch(resetProvider);
+
+    if (shouldReset) {
+      clearTextFields();
+      for (int i = 0; i < textController.length; i++) {
+        setState(() {
+          containerColors[i] = Colors.white;
+        });
+      }
+    }
     return Row(
       children: [
         _buildTextFields(),
