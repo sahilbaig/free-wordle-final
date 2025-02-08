@@ -1,18 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:free_wordle/providers/word_provider.dart';
 import 'package:free_wordle/textBar/input_div.dart';
-import 'package:free_wordle/utilities/word_of_the_day.dart';
 
-class Home extends StatelessWidget {
-  Home({super.key});
-
-  final WordOfTheDay word = WordOfTheDay(); // Define word first
+class Home extends ConsumerWidget {
+  const Home({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // Now we can generate wordRows inside build()
-    final wordRows = List.generate(5, (index) {
-      return TextBoxes(word: word);
-    });
 
     return Scaffold(
       appBar: AppBar(
@@ -20,13 +16,47 @@ class Home extends StatelessWidget {
       ),
       body: Column(
         children: [
-          ...wordRows, // Spread operator to add list elements
+          TextBoxes(),
+          TextBoxes(),
+          TextBoxes(),
+          TextBoxes(),
+          TextBoxes(),
           ElevatedButton(
             onPressed: () {
-              word.resetWord();
-              print(word.getWord());
+              ref.read(wordProvider.notifier).generateNewWord();
             },
             child: const Text("Get new word"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              ref.read(resetProvider.notifier).state = true;
+              Future.delayed(Duration(milliseconds: 50), () {
+                ref.read(resetProvider.notifier).state = false;
+              });
+            },
+            child: const Text("Reset"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text("Final word"),
+                    content: Text(ref.read(wordProvider.notifier).getWord()),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Close the dialog
+                        },
+                        child: Text("OK"),
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+            child: const Text("Reveal Word"),
           ),
         ],
       ),
