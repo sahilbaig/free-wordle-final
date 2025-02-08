@@ -1,48 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:free_wordle/textBar/input_div.dart';
+import 'package:free_wordle/utilities/word_of_the_day.dart';
 
-class TextBar extends StatefulWidget {
-  const TextBar({super.key});
+class TextBoxes extends StatefulWidget {
+  WordOfTheDay word; // Accept WordOfTheDay instance
+  TextBoxes({super.key, required this.word});
 
   @override
-  State<TextBar> createState() => _TextBarState();
+  State<TextBoxes> createState() => _TextBoxesState();
 }
 
-class _TextBarState extends State<TextBar> {
+class _TextBoxesState extends State<TextBoxes> {
   final textController = List.generate(5, (index) => TextEditingController());
   final focusNodes = List.generate(5, (index) => FocusNode());
   List<Color> containerColors = List.generate(5, (index) => Colors.white);
 
-  List<TextBoxes> _TextBoxes = List.generate(5, (index) => TextBoxes());
-
-  Widget _buildTextFields() {
-    return Row(
-      children: List.generate(5, (index) {
-        return Container(
-          margin: EdgeInsets.symmetric(horizontal: 5),
-          decoration: BoxDecoration(
-              border: Border.all(color: Colors.black, width: 2),
-              color: containerColors[index]),
-          width: 40,
-          child: TextField(
-            focusNode: focusNodes[index],
-            textAlign: TextAlign.center,
-            controller: textController[index],
-            maxLength: 1,
-            decoration: InputDecoration(counterText: ""),
-            onChanged: (value) {
-              if (value.isNotEmpty && index < 4) {
-                FocusScope.of(context).requestFocus(focusNodes[index + 1]);
-              }
-            },
-          ),
-        );
-      }),
-    );
+  void moveForward(value, index) {
+    if (value.isNotEmpty && index < 4) {
+      FocusScope.of(context).requestFocus(focusNodes[index + 1]);
+    }
   }
 
   void colorDiv() {
-    List<String> wordCharacters = TextBar.CorrectWord.split("");
+    List<String> wordCharacters = widget.word.getWord().split("");
     List<TextEditingController> inputData = List.from(textController);
     Set<int> alreadyChecked = {};
 
@@ -79,6 +58,37 @@ class _TextBarState extends State<TextBar> {
     }
   }
 
+  void moveBackwards() {
+    // TODO: Implement this method -> Backspace does not work;
+  }
+
+  Widget _buildTextFields() {
+    return Row(
+      children: List.generate(5, (index) {
+        return Container(
+          margin: EdgeInsets.symmetric(horizontal: 5),
+          decoration: BoxDecoration(
+              border: Border.all(color: Colors.black, width: 2),
+              color: containerColors[index]),
+          width: 40,
+          child: TextField(
+            focusNode: focusNodes[index],
+            textAlign: TextAlign.center,
+            controller: textController[index],
+            maxLength: 1,
+            decoration: InputDecoration(counterText: ""),
+            onChanged: (value) {
+              if (value.isNotEmpty) {
+                moveForward(value, index);
+              }
+              //Add a method to go backwords
+            },
+          ),
+        );
+      }),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -88,7 +98,7 @@ class _TextBarState extends State<TextBar> {
             onPressed: () {
               colorDiv();
             },
-            child: Text("check"))
+            child: Text("Check"))
       ],
     );
   }
